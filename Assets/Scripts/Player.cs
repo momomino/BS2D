@@ -1,6 +1,9 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using System.IO.Ports;
+using System.Threading;
+using System;
 
 [RequireComponent (typeof (Controller2D))]
 public class Player : MonoBehaviour {
@@ -19,7 +22,7 @@ public class Player : MonoBehaviour {
 
     Controller2D controller;
 
-void Start()
+    void Start()
     {
         controller = GetComponent<Controller2D>();
 
@@ -30,6 +33,7 @@ void Start()
 
     void Update()
     {
+
 
         if (controller.collisions.above || controller.collisions.below)
         {
@@ -47,5 +51,20 @@ void Start()
         velocity.x = Mathf.SmoothDamp(velocity.x, targetVelocityX, ref velocityXSmoothing, (controller.collisions.below) ? accelerationTimeGrounded : accelerationTimeAirborne); //smooth movements instead of directly input.x
         velocity.y += gravity * Time.deltaTime;
         controller.Move(velocity * Time.deltaTime);
+    }
+
+    static SerialPort _serialPort;
+    public static void SwipeTapControl()
+    {
+        _serialPort = new SerialPort();
+        _serialPort.PortName = "COM5";//Set your board COM
+        _serialPort.BaudRate = 115200;
+        _serialPort.Open();
+        while (true)
+        {
+            string a = _serialPort.ReadExisting();
+            Console.WriteLine(a);
+            Thread.Sleep(200);
+        }
     }
 }
