@@ -9,6 +9,12 @@ using System;
 public class Player : MonoBehaviour {
     static SerialPort _serialPort;
 
+    SerialPort stream = new SerialPort("COM5", 115200);
+    //set port and speed for seial communication
+
+
+    public float swipeOrTap;
+
     public float jumpHeight = 4;
     public float timeToJumpApex = .4f;
     float accelerationTimeAirborne = 0.2f;
@@ -16,6 +22,8 @@ public class Player : MonoBehaviour {
     float moveSpeed = 6;
     float gravity;
 
+    Vector2 swipeTap = new Vector2(0, 0);
+    
     float jumpVelocity;
     Vector3 velocity;
     float velocityXSmoothing;
@@ -27,9 +35,13 @@ public class Player : MonoBehaviour {
     {
         controller = GetComponent<Controller2D>();
 
+        swipeTap.x = 1;//player is always moving
+
         gravity = -(2 * jumpHeight) / Mathf.Pow(timeToJumpApex, 2); //setting up jump characteristics to be based on gravity, but controlled through jumpheight and time till apex
         jumpVelocity = Mathf.Abs(gravity) * timeToJumpApex;
-        print("Gravity: " + gravity + " Jump Velocity: " + jumpVelocity); 
+        print("Gravity: " + gravity + " Jump Velocity: " + jumpVelocity);
+
+        stream.Open();//open serial stream
     }
 
     void Update()
@@ -41,18 +53,33 @@ public class Player : MonoBehaviour {
             velocity.y = 0;
         }
 
-        Vector2 input = new Vector2(Input.GetAxisRaw("Horizontal"), Input.GetAxisRaw("Vertical"));
+        //serial reading:
+        string value = stream.ReadLine();
+         swipeOrTap = float.Parse(value);
 
-        if (Input.GetKeyDown(KeyCode.Space) && controller.collisions.below)
+        //Vector2 input = new Vector2(Input.GetAxisRaw("Horizontal"), Input.GetAxisRaw("Vertical"));
+        
+
+        if (swipeOrTap == 345)
+        {
+            swipeTap.x = -swipeTap.x;
+        }
+
+        if (swipeOrTap == 678  && controller.collisions.below)
         {
             velocity.y = jumpVelocity;
         }
 
-        float targetVelocityX = input.x * moveSpeed;
+        float targetVelocityX = swipeTap.x * moveSpeed;
         velocity.x = Mathf.SmoothDamp(velocity.x, targetVelocityX, ref velocityXSmoothing, (controller.collisions.below) ? accelerationTimeGrounded : accelerationTimeAirborne); //smooth movements instead of directly input.x
         velocity.y += gravity * Time.deltaTime;
         controller.Move(velocity * Time.deltaTime);
     }
+
+    /// if 345 --> swiped
+    /// if 678 --> tapped
+    /// if 123 --> nothing
+
 
     //public static int SwipeTapControl()
     //{
