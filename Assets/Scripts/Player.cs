@@ -7,6 +7,7 @@ using System;
 
 [RequireComponent (typeof (Controller2D))]
 public class Player : MonoBehaviour {
+    static SerialPort _serialPort;
 
     public float jumpHeight = 4;
     public float timeToJumpApex = .4f;
@@ -33,7 +34,7 @@ public class Player : MonoBehaviour {
 
     void Update()
     {
-
+       // SwipeTapControl();
 
         if (controller.collisions.above || controller.collisions.below)
         {
@@ -53,18 +54,17 @@ public class Player : MonoBehaviour {
         controller.Move(velocity * Time.deltaTime);
     }
 
-    static SerialPort _serialPort;
-    public static void SwipeTapControl()
-    {
-        _serialPort = new SerialPort();
-        _serialPort.PortName = "COM5";//Set your board COM
-        _serialPort.BaudRate = 115200;
-        _serialPort.Open();
-        while (true)
-        {
-            string a = _serialPort.ReadExisting();
-            Console.WriteLine(a);
-            Thread.Sleep(200);
-        }
-    }
+    //public static int SwipeTapControl()
+    //{
+    //    _serialPort = new SerialPort();
+    //    _serialPort.PortName = "COM5";//Set your board COM
+    //    _serialPort.BaudRate = 115200;
+    //    _serialPort.Open();
+    //    while (true)
+    //    {
+    //        string a = _serialPort.ReadExisting();
+    //        Console.WriteLine(a);
+    //        Thread.Sleep(200);
+    //    }
+    //}
 }
