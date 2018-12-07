@@ -11,6 +11,7 @@ public class Controller2D : MonoBehaviour {
     public int horizontalRayCount = 4;
     public int verticalRayCount = 4;
 
+    float maxClimbAngle = 80;
 
     float horizontalRaySpacing;
     float verticalRaySpacing;
@@ -73,11 +74,28 @@ public class Controller2D : MonoBehaviour {
 
             if (hit)
             {
-                velocity.x = (hit.distance - skinWidth) * directionX;
-                rayLength = hit.distance;
+                float slopeAngle = Vector2.Angle(hit.normal, Vector2.up);
 
-                collisions.left = directionX == -1;
-                collisions.right = directionX == 1;
+                if (i == 0 && slopeAngle <= maxClimbAngle)
+                {
+                    float distanceToSlopeStart = 0;
+                    if (slopeAngle != collisions.slopeAngleOld)
+                    {
+                        distanceToSlopeStart = hit.distance - skinWidth; //no gap between block and ground on slopes
+                        velocity.x -= distanceToSlopeStart * directionX; //14:45 in video 4
+                    }
+                    ClimbSlope(ref velocity, slopeAngle);
+                    velocity.x += distanceToSlopeStart * directionX;
+                }
+                
+                if(!collisions.climbingSlope || slopeAngle > maxClimbAngle)
+                { 
+                    velocity.x = (hit.distance - skinWidth) * directionX;
+                    rayLength = hit.distance;
+
+                    collisions.left = directionX == -1;
+                    collisions.right = directionX == 1;
+                }
             }
 
         }
@@ -107,6 +125,22 @@ public class Controller2D : MonoBehaviour {
             }
 
         }
+    }
+
+    void ClimbSlope(ref Vector3 velocity, float slopeAngle)
+    {
+        float moveDistance = Mathf.Abs(velocity.x);
+        float climbVelocityY = Mathf.Sin (slopeAngle * Mathf.Deg2Rad) * moveDistance;
+
+        if (velocity.y <= climbVelocityY)
+        { 
+            velocity.y = climbVelocityY;
+            velocity.x = Mathf.Cos(slopeAngle * Mathf.Deg2Rad) * moveDistance * Mathf.Sign(velocity.x);
+            collisions.below = true;
+            collisions.climbingSlope = true;
+            collisions.slopeAngle = slopeAngle;
+        }
+           
     }
 
     void UpdateRaycastOrigins()
@@ -142,11 +176,18 @@ public class Controller2D : MonoBehaviour {
     {
         public bool above, below;
         public bool left, right;
+        public float slopeAngle, slopeAngleOld;
+
+        public bool climbingSlope;
 
         public void Reset()
         {
             above = below = false;
             left = right = false;
+            climbingSlope = false;
+
+            slopeAngleOld = slopeAngle;
+            slopeAngle = 0;
         }
     }
 }
