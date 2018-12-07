@@ -60,7 +60,12 @@ public class Controller2D : MonoBehaviour {
 
     void HorizontalCollisions(ref Vector3 velocity)
     {
-
+        ///////\\\\\\\
+        if (transform.position.x > 9.9 || transform.position.x < -9.9)
+        {
+            transform.position = new Vector3(-transform.position.x, transform.position.y);
+        }
+        ///////\\\\\\\
         float directionX = Mathf.Sign(velocity.x);
         float rayLength = Mathf.Abs(velocity.x) + skinWidth;
 
