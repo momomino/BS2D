@@ -27,6 +27,8 @@ public class Controller2D : MonoBehaviour {
         CalculateRaySpacing();   //from void Update()
     }
 
+  
+
     /*
      * Removed as per video 2
      * private void Update()

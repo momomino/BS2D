@@ -27,6 +27,7 @@ public class Player : MonoBehaviour {
     float jumpVelocity;
     Vector3 velocity;
     float velocityXSmoothing;
+    float packetLoss = 0;
 
 
     Controller2D controller;
@@ -44,6 +45,13 @@ public class Player : MonoBehaviour {
         stream.Open();//open serial stream
     }
 
+    
+
+    private Rect Rect(int v1, int v2, int v3, int v4)
+    {
+        throw new NotImplementedException();
+    }
+
     void Update()
     {
        // SwipeTapControl();
@@ -53,9 +61,12 @@ public class Player : MonoBehaviour {
             velocity.y = 0;
         }
 
+
         //serial reading:
         string value = stream.ReadLine();
-         swipeOrTap = float.Parse(value);
+        // swipeOrTap = int.Parse(value);
+
+        swipeOrTap = Convert.ToInt32(value);
 
         //Vector2 input = new Vector2(Input.GetAxisRaw("Horizontal"), Input.GetAxisRaw("Vertical"));
         
@@ -70,6 +81,10 @@ public class Player : MonoBehaviour {
             velocity.y = jumpVelocity;
         }
 
+        if (swipeOrTap != 678 && swipeOrTap != 345 && swipeOrTap != 0)
+        {
+            packetLoss++;
+        }
         float targetVelocityX = swipeTap.x * moveSpeed;
         velocity.x = Mathf.SmoothDamp(velocity.x, targetVelocityX, ref velocityXSmoothing, (controller.collisions.below) ? accelerationTimeGrounded : accelerationTimeAirborne); //smooth movements instead of directly input.x
         velocity.y += gravity * Time.deltaTime;
@@ -82,9 +97,14 @@ public class Player : MonoBehaviour {
         }
     }
 
+    void OnGUI()
+    {
+        GUI.Label(new Rect(0, 5, 100, 100), "Packet Loss:"+Convert.ToString(packetLoss));
+        GUI.Label(new Rect(0, 30, 100, 100), "Packet Sent:"+Convert.ToString(swipeOrTap));
+    }
     /// if 345 --> swiped
     /// if 678 --> tapped
-    /// if 123 --> nothing
+    /// if 000 --> nothing
 
 
     //public static int SwipeTapControl()
