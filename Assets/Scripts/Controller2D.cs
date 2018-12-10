@@ -7,6 +7,7 @@ public class Controller2D : MonoBehaviour {
 
     public LayerMask collisionMask;
 
+ 
     const float skinWidth = 0.015f;
     public int horizontalRayCount = 4;
     public int verticalRayCount = 4;
@@ -38,7 +39,6 @@ public class Controller2D : MonoBehaviour {
             Debug.DrawRay(raycastOrigins.bottomLeft + Vector2.right * verticalRaySpacing * i, Vector2.up * -2, Color.red);
         }
     }*/
-
     public void Move(Vector3 velocity)
     {
         UpdateRaycastOrigins(); //from void Update()
@@ -65,7 +65,7 @@ public class Controller2D : MonoBehaviour {
         {
             transform.position = new Vector3(-transform.position.x, transform.position.y);
         }
-        ///////\\\\\\\
+        ///////\\\\\\\ infinity scroll
         float directionX = Mathf.Sign(velocity.x);
         float rayLength = Mathf.Abs(velocity.x) + skinWidth;
 
